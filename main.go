@@ -1,5 +1,7 @@
 package main
 
+// TODO Make this support video files, I'll need this for the Streaming app
+
 import (
 	"fmt"
 	"strings"
@@ -40,7 +42,7 @@ var dataBase = make(map[string]string)
 //
 //}
 
-var acceptedOperations = []string{"SET", "GET"}
+var acceptedOperations = []string{"SET", "GET", "DEL", "QUIT"}
 
 func operationIsAccepted(receivedOperation *string) bool {
 	for _, currentOperation := range acceptedOperations {
@@ -51,14 +53,36 @@ func operationIsAccepted(receivedOperation *string) bool {
 	return false
 }
 
+func set(key *string, value *string) {
+	dataBase[*key] = *value
+	fmt.Println("DONE!")
+	return
+}
+func get(key *string) {
+	if dataBase[*key] == "" {
+		fmt.Println("Theres no ->", *key, "<- key")
+		return
+	}
+	fmt.Println(dataBase[*key])
+}
+func del(key *string) {
+	_, keyExists := dataBase[*key]
+	if !keyExists {
+		fmt.Println("There's no ->", *key, "<-  key")
+		return
+	}
+	delete(dataBase, *key)
+	fmt.Println("DONE!")
+	return
+}
+
 func main() {
 
 	var operation, key, value string
 
-	fmt.Println("---| WELLCOME TO MOR! | ---\n\n")
+	fmt.Println("---| WELLCOME TO MOR! |---\n\n")
 
 	for {
-
 		_, _ = fmt.Scanln(&operation, &key, &value)
 
 		operation = strings.ToUpper(operation)
@@ -68,20 +92,20 @@ func main() {
 		}
 
 		switch operation {
-
 		case "SET":
-			dataBase[key] = value
-			fmt.Println("Added ", value, " to ", key)
+			set(&key, &value)
 			break
 
 		case "GET":
-			if dataBase[key] == "" {
-				fmt.Println("Theres no ->", key, "<- key")
-				continue
-			}
-			fmt.Println(dataBase[key])
+			get(&key)
 			break
-		}
 
+		case "DEL":
+			del(&key)
+			break
+
+		case "QUIT":
+			return
+		}
 	}
 }
