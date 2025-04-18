@@ -42,7 +42,7 @@ var dataBase = make(map[string]string)
 //
 //}
 
-var acceptedOperations = []string{"SET", "GET", "DEL", "QUIT"}
+var acceptedOperations = []string{"SET", "GET", "DEL", "KEYS", "FLUSHALL", "QUIT"}
 
 func operationIsAccepted(receivedOperation *string) bool {
 	for _, currentOperation := range acceptedOperations {
@@ -54,6 +54,10 @@ func operationIsAccepted(receivedOperation *string) bool {
 }
 
 func set(key *string, value *string) {
+	if *key == "" || *value == "" {
+		fmt.Println("Correct sintax -> SET 'key' 'value'")
+		return
+	}
 	dataBase[*key] = *value
 	fmt.Println("DONE!")
 	return
@@ -75,14 +79,39 @@ func del(key *string) {
 	fmt.Println("DONE!")
 	return
 }
+func keys() {
+	if len(dataBase) < 1 {
+		fmt.Println("No keys")
+		return
+	}
+	var index = 1
+	for _, key := range dataBase {
+		fmt.Println(index, ")", key)
+		index++
+	}
+	return
+}
+func flushall() {
+	if len(dataBase) < 1 {
+		fmt.Println("All clear already!")
+		return
+	}
+
+	for key := range dataBase {
+		delete(dataBase, key)
+	}
+	fmt.Println("All clear!")
+
+	return
+}
 
 func main() {
-
-	var operation, key, value string
 
 	fmt.Println("---| WELLCOME TO MOR! |---\n\n")
 
 	for {
+		var operation, key, value string
+
 		_, _ = fmt.Scanln(&operation, &key, &value)
 
 		operation = strings.ToUpper(operation)
@@ -104,8 +133,21 @@ func main() {
 			del(&key)
 			break
 
+		case "KEYS":
+			keys()
+			break
+
+		case "FLUSHALL":
+			flushall()
+			break
+
 		case "QUIT":
 			return
+
+		default:
+			fmt.Println("No such operation")
+			break
 		}
+
 	}
 }
